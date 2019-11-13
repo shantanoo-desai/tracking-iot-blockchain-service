@@ -33,6 +33,20 @@ These __RESTful__ APIs communicate with:
 
     pip install -r requirements.txt
 
+- Set `APP_CONFIG` to the configuration file variables e.g. `testing.cfg` or `production.cfg`
+
+    Linux
+
+        export APP_CONFIG=production.cfg
+    
+    Windows (PowerShell)
+
+        $env:APP_CONFIG = 'production.cfg'
+
+- Run the app using
+
+    python app.py
+
 ## Documentation
 
 - Current Swagger Documentation available on http://localhost:5000/api/
