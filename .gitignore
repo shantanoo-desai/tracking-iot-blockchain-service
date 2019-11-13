@@ -227,4 +227,7 @@ venv/
 
 # Editor
 .vscode/
+
+# Ignore Production Configuration Files
+production.cfg
 # End of https://www.gitignore.io/api/python
