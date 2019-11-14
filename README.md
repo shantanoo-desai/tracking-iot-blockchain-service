@@ -31,25 +31,40 @@ These __RESTful__ APIs communicate with:
 
 - Install Dependencies
 
-    pip install -r requirements.txt
+        pip install -r requirements.txt
 
 - Set `APP_CONFIG` to the configuration file variables e.g. `testing.cfg` or `production.cfg`
 
     Linux
 
-        export APP_CONFIG=production.cfg
+        export APP_CONFIG=testing.cfg
     
     Windows (PowerShell)
 
-        $env:APP_CONFIG = 'production.cfg'
+        $env:APP_CONFIG = "testing.cfg"
+
+- enable debugging in the `app.py`:
+
+        app.run(debug=True)
 
 - Run the app using
 
-    python app.py
+        python app.py
 
 ## Documentation
 
 - Current Swagger Documentation available on http://localhost:5000/api/
+
+## Deployment
+
+- Disable debug mode in production using `debug=False` in `app.py`
+- The app is deployed with __uWSGI Server__
+- Change the settings for the __uWSGI Server__ in `app.ini`
+- Adapt the `APP_CONFIG` variable in the `docker-compose` file to `production.cfg` with all environment variables
+  necessary in it
+- build using:
+
+        docker-compose up --build
 
 ## License
 __MIT License__
