@@ -11,14 +11,17 @@ api = Namespace('hashdoc', description='IoT-EPC-Event Hash Document Operations')
 
 # Request Parser
 event_duration_parser = reqparse.RequestParser()
-event_duration_parser.add_argument('from', 
-                            type=str,
-                            required=False,
-                            help='UTC Timestamp __ISO8601 Format__ from Previous EPC Event (ms precision) e.g. `2019-01-01T10:45:10.800Z`')
-event_duration_parser.add_argument('to',
-                            type=str,
-                            required=False,
-                            help='UTC Timestamp __ISO8601 Format__ of Present EPC Event (ms precision). e.g. `2019-01-01T10:50:15.900Z`')
+event_duration_parser.add_argument(
+    'from',
+    type=str,
+    required=False,
+    help='UTC Timestamp of previous Event e.g. `2019-01-01T10:45:10.800Z`')
+
+event_duration_parser.add_argument(
+    'to',
+    type=str,
+    required=False,
+    help='UTC Timestamp of present Event. e.g. `2019-01-01T10:50:15.900Z`')
 
 
 # Models for Hash Document
@@ -29,8 +32,14 @@ bizLocations = api.model('bizLocations', {
 
 epc_event = api.model('event', {
     'bizLocation': fields.Nested(bizLocations),
-    'from_time': fields.String(required=False, description='UTC ISO8601 Timestamp from Previous Event in millisecond precision'),
-    'to_time': fields.String(required=False, description='UTC ISO8601 Timestamp to Present Event in millisecond precision')
+    'from_time': fields.String(
+        required=False,
+        description='UTC ISO8601 Timestamp from Previous Event in millisecond precision'
+    ),
+    'to_time': fields.String(
+        required=False,
+        description='UTC ISO8601 Timestamp to Present Event in millisecond precision'
+    )
 })
 
 sensor_hash = api.model('sensorHash', {
@@ -44,7 +53,7 @@ hash_doc = api.model('HashDoc', {
 })
 
 
-## API Routes
+# API Routes
 
 @api.route('/')
 @api.doc(responses={404: 'No Hash Documents Exist'})
@@ -61,8 +70,10 @@ class HashDocDumpResource(Resource):
                                 {},
                                 projection)
         list_hash_docs = list(all_hash_docs)
+
         if len(list_hash_docs):
             return list_hash_docs
+
         else:
             logger.info('hashdoc/ API: No Data found')
             return api.abort(404)
@@ -83,18 +94,31 @@ class HashDocResource(Resource):
         to_time = args.get('to')
         query = {'epc': product_id}
         projection = {'_id': 0}
+
         if from_time and to_time:
-            logger.debug('hashdoc/{}?from="{}"&to="{}": called'.format(product_id, from_time, to_time))
+            logger.debug('hashdoc/{}?from="{}"&to="{}": called'.format(
+                product_id,
+                from_time,
+                to_time))
+
             query['event.from_time'] = from_time
             query['event.to_time'] = to_time
+
         logger.info('hashdoc/{}: called'.format(product_id))
+
         product_hash_doc = mongo.db['HashData'].find(
                                     query,
                                     projection)
         list_product_hashdoc = list(product_hash_doc)
+
         if len(list_product_hashdoc):
-            logger.debug('No. of Product Hash Documents found: {}'.format(str(len(list_product_hashdoc))))
+            logger.debug('No. of Product Hash Documents found: {}'.format(
+                str(
+                    len(list_product_hashdoc))
+                )
+            )
             return list_product_hashdoc
+
         else:
-            logger.info('hashdoc/{}: No Product Hash Documents found'.format(product_id))
+            logger.info('No Product Hash Documents found')
             api.abort(404, 'No Values Exist for Product ID {}'.format(product_id))

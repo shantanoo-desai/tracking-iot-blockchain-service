@@ -28,6 +28,7 @@ sensor_doc = api.model('SensorDoc', {
     'measurement': fields.Nested(measurement)
 })
 
+
 def create_sensor_doc(datapoints):
     """Generate a JSONic Sensor Document based on given a list of datapoints
 
@@ -71,11 +72,11 @@ def create_sensor_doc(datapoints):
     return sensor_doc_to_send
 
 
-## API Routes
+# API Routes
 
 @api.route('/<hash>')
 @api.param('hash', 'SHA-256 Batch Hash')
-@api.doc(responses = {
+@api.doc(responses={
             400: 'Given Hash is not SHA-256 length compliant',
             404: 'No Values Found for given Hash'
         })
@@ -86,22 +87,27 @@ class SensorDocResource(Resource):
         '''
         Fetch a Sensor Document given its SHA-256 Hash
         '''
-        logger.info('sensordoc/<hash>: called'.format(hash))
-        logger.debug('sensordoc/<hash>: length of incoming hash: {}'.format(len(hash)))
+        logger.info('sensordoc/<hash>: called')
+        logger.debug('length of incoming hash: {}'.format(len(hash)))
+
         if len(hash) == 64:
             query = 'SELECT * FROM env WHERE hash=\'{}\''.format(hash)
-            logger.debug('sensordoc/<hash>: InfluxDB Query: {}'.format(query))
+            logger.debug('InfluxDB Query: {}'.format(query))
+
             results = list(influx.connect().query(query))
-            logger.debug('sensordoc/<hash>: No. of Datapoints from InfluxDB Query: {}'.format(len(results)))
+            logger.debug('No. of Datapoints from InfluxDB Query: {}'.format(
+                len(results)
+            ))
+
             if len(results):
-                logger.info('sensordoc/<hash>: Creating Sensor Doc for Datapoints')
+                logger.info('Creating Sensor Doc for Datapoints')
                 response = create_sensor_doc(results[0])
                 return response
-            else:
-                logger.info('sensordoc/<hash>: No Datapoints available for given InfluxDB Query')
-                api.abort(404)
-        else:
-            logger.info('sensordoc/<hash>: incoming hash length {} is not compliant with standard SHA-256 hash (64)'.format(len(hash)))
-            api.abort(400)
-        
 
+            else:
+                logger.info('No Datapoints available for given InfluxDB Query')
+                api.abort(404)
+
+        else:
+            logger.info('incoming hash length {} is not standard SHA-256 hash'.format(len(hash)))
+            api.abort(400)
