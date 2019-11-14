@@ -6,9 +6,6 @@ LABEL maintainer="Shan Desai<shantanoo.desai@gmail.com>"
 # Setup the Working Directory
 WORKDIR /iotblockchainApp
 
-# Copy the configuration file (if not copied)
-COPY production.cfg /iotblockchainApp
-
 # Add all files to the Working Directory
 ADD . /iotblockchainApp
 
