@@ -1,6 +1,8 @@
 # Use python-3 base image
 FROM python:3
 
+LABEL maintainer="Shan Desai<shantanoo.desai@gmail.com>"
+
 # Setup the Working Directory
 WORKDIR /iotblockchainApp
 
@@ -15,7 +17,5 @@ RUN pip install -r requirements.txt
 
 # Set configuration file as environment variable
 ENV FLASK_APP app.py
-
-EXPOSE 5000
 
 CMD ["uwsgi", "--ini", "app.ini"]
