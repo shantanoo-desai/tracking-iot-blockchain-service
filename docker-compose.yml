@@ -1,0 +1,16 @@
+version: "3.7"
+
+services:
+
+  flask:
+    image: iotblockchain-flask-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - APP_CONFIG=testing.cfg
+    restart: always
+    expose:
+      - 5000
+    ports:
+      - "5000:5000"
