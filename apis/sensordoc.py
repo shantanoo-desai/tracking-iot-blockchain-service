@@ -1,5 +1,5 @@
 import logging
-from flask_restplus import Namespace, Resource, fields
+from flask_restplus import Namespace, Resource, fields, reqparse
 
 from databases.sensordb import influx
 
@@ -8,6 +8,15 @@ logger = logging.getLogger(__name__)
 
 # API Namespace for Sensor Document
 api = Namespace('sensordoc', description='Sensor Document Operations')
+
+request_parser = reqparse.RequestParser()
+
+request_parser.add_argument(
+    'hash',
+    required=True,
+    type=str,
+    help='SHA-256 Cryptographic Hash String'
+)
 
 
 # API Models for Sensor Document
@@ -74,24 +83,25 @@ def create_sensor_doc(datapoints):
 
 # API Routes
 
-@api.route('/<hash>')
-@api.param('hash', 'SHA-256 Batch Hash')
+@api.route('')
+@api.param('hash', 'SHA-256 Cryptographic Hash String')
 @api.doc(responses={
-            400: 'Given Hash is not SHA-256 length compliant',
-            404: 'No Values Found for given Hash'
+            400: 'Given Hash is Incorrect'
         })
 class SensorDocResource(Resource):
-    @api.doc('get_sensordoc')
+    @api.expect(request_parser)
     @api.marshal_list_with(sensor_doc)
-    def get(self, hash):
+    def get(self):
         '''
         Fetch a Sensor Document given its SHA-256 Hash
         '''
-        logger.info('sensordoc/<hash>: called')
-        logger.debug('length of incoming hash: {}'.format(len(hash)))
+        logger.info('sensordoc: called')
+        # parse the incoming hash in the request
+        args = request_parser.parse_args()
+        incoming_hash = args.get('hash')
 
-        if len(hash) == 64:
-            query = 'SELECT * FROM env WHERE hash=\'{}\''.format(hash)
+        if len(incoming_hash) == 64:
+            query = 'SELECT * FROM env WHERE hash=\'{}\''.format(incoming_hash)
             logger.debug('InfluxDB Query: {}'.format(query))
 
             results = list(influx.connect().query(query))
@@ -106,8 +116,9 @@ class SensorDocResource(Resource):
 
             else:
                 logger.info('No Datapoints available for given InfluxDB Query')
-                api.abort(404)
+                return []  # return empty list under HTTP 200
 
         else:
-            logger.info('incoming hash length {} is not standard SHA-256 hash'.format(len(hash)))
-            api.abort(400)
+            logger.info('incoming hash length {} is not standard SHA-256 hash'.format(
+                len(incoming_hash)))
+            api.abort(400, 'Given Hash is not SHA-256 length compliant')
