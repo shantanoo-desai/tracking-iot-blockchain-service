@@ -14,8 +14,7 @@ request_parser = reqparse.RequestParser()
 request_parser.add_argument(
     'hash',
     required=True,
-    type=str,
-    help='SHA-256 Cryptographic Hash String'
+    type=str
 )
 
 
@@ -84,10 +83,15 @@ def create_sensor_doc(datapoints):
 # API Routes
 
 @api.route('')
-@api.param('hash', 'SHA-256 Cryptographic Hash String')
-@api.doc(responses={
-            400: 'Given Hash is Incorrect'
-        })
+@api.doc(
+    params={
+        'hash': 'SHA256 Hash String. \
+        e.g. `5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03`'
+    },
+    responses={
+        400: 'Given Hash is Incorrect'
+    }
+)
 class SensorDocResource(Resource):
     @api.expect(request_parser)
     @api.marshal_list_with(sensor_doc)
