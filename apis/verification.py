@@ -2,7 +2,7 @@ import logging
 import json
 import hashlib
 import requests
-from flask_restplus import Namespace, Resource, reqparse
+from flask_restplus import Namespace, Resource, fields, reqparse
 from databases.sensordb import influx
 from databases.documentdb import mongo
 from apis.sensordoc import create_sensor_doc
@@ -17,16 +17,27 @@ api = Namespace('verify', description='Verify if IoT data is stored in Blockchai
 # Request Parser for Time Duration
 event_duration_parser = reqparse.RequestParser()
 event_duration_parser.add_argument(
+    'productID',
+    type=str,
+    required=True
+)
+
+event_duration_parser.add_argument(
     'from',
     type=str,
-    required=True,
-    help='UTC Timestamp from Previous EPC Event. e.g. `2019-01-01T10:45:10.800Z`')
+    required=True
+)
 
 event_duration_parser.add_argument(
     'to',
     type=str,
-    required=True,
-    help='UTC Timestamp of Present EPC Event. e.g. `2019-01-01T10:50:15.900Z`')
+    required=True
+)
+
+# Model for verification (simple boolean model)
+verified_response = api.model('Validation', {
+    'validated': fields.Boolean(required=True)
+})
 
 
 def check_data_integrity(incoming_hash):
@@ -86,18 +97,26 @@ def check_in_blockchain(incoming_hash):
 
 
 # API Routes
-@api.route('/<product_id>')
-@api.doc(responses={
-            200: 'Product and IoT Data Validated',
+@api.route('')
+@api.doc(
+    params={
+        "productID": "product's EPC ID",
+        "from": "UTC Timestamp of present Event. e.g. `2019-01-01T10:50:15.900Z`",
+        "to": "UTC Timestamp of Present EPC Event. e.g. `2019-01-01T10:50:15.900Z`"
+    },
+    responses={
             404: 'No Data Exists for Given Product ID and Time Range'
-        })
+    }
+)
 class VerifyResource(Resource):
     @api.expect(event_duration_parser, validate=True)
-    def get(self, product_id):
+    @api.marshal_with(verified_response)
+    def get(self):
         '''
-            API for frontend-service to Cross-Check a product's IoT Data Integrity with Blockchain
+            API for frontend-service to cross-check a product's IoT Data Integrity with Blockchain
         '''
         args = event_duration_parser.parse_args()
+        product_id = args.get('productID')
         from_time = args.get('from')
         to_time = args.get('to')
 
@@ -143,8 +162,4 @@ class VerifyResource(Resource):
 
         else:
             logger.info('No Data for given Product and Time Range')
-            api.abort(404, 'No Data for Product ID: {} and Time Range: {} to {}'.format(
-                product_id,
-                from_time,
-                to_time
-            ))
+            return {'validated': False}  # return False value if nothing exists
