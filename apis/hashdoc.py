@@ -11,17 +11,24 @@ api = Namespace('hashdoc', description='IoT-EPC-Event Hash Document Operations')
 
 # Request Parser
 event_duration_parser = reqparse.RequestParser()
+
+event_duration_parser.add_argument(
+    'productID',
+    type=str,
+    required=True
+)
+
 event_duration_parser.add_argument(
     'from',
     type=str,
-    required=False,
-    help='UTC Timestamp of previous Event e.g. `2019-01-01T10:45:10.800Z`')
+    required=False
+)
 
 event_duration_parser.add_argument(
     'to',
     type=str,
-    required=False,
-    help='UTC Timestamp of present Event. e.g. `2019-01-01T10:50:15.900Z`')
+    required=False
+)
 
 
 # Models for Hash Document
@@ -55,41 +62,26 @@ hash_doc = api.model('HashDoc', {
 
 # API Routes
 
-@api.route('/')
-@api.doc(responses={404: 'No Hash Documents Exist'})
-class HashDocDumpResource(Resource):
-    @api.marshal_list_with(hash_doc)
-    def get(self):
-        '''
-        Fetch All IoT-EPC Event Hash Documents
-        '''
-        logger.info('hashdoc/ API: called')
-        projection = {'_id': 0}
-
-        all_hash_docs = mongo.db['HashData'].find(
-                                {},
-                                projection)
-        list_hash_docs = list(all_hash_docs)
-
-        if len(list_hash_docs):
-            return list_hash_docs
-
-        else:
-            logger.info('hashdoc/ API: No Data found')
-            return api.abort(404)
-
-
-@api.route('/<string:product_id>')
-@api.param('product_id', 'EPC Product ID')
-@api.doc(responses={404: 'No Values Exist for given Product ID'})
+@api.route('')
+@api.doc(
+    params={
+        "productID": "Product's EPC ID",
+        "from": "UTC Timestamp of previous Event e.g. `2019-01-01T10:45:10.800Z`",
+        "to": "UTC Timestamp of present Event. e.g. `2019-01-01T10:50:15.900Z`"
+    },
+    responses={
+        400: 'Missing Parameters for Query'
+    }
+)
 class HashDocResource(Resource):
     @api.expect(event_duration_parser)
     @api.marshal_list_with(hash_doc)
-    def get(self, product_id):
+    def get(self):
         '''
         Fetch IoT-EPC Event Hash Documents for given EPC Product ID & Time Duration (if provided).
         '''
         args = event_duration_parser.parse_args()
+        product_id = args.get('productID')
         from_time = args.get('from')
         to_time = args.get('to')
         query = {'epc': product_id}
@@ -104,6 +96,12 @@ class HashDocResource(Resource):
             query['event.from_time'] = from_time
             query['event.to_time'] = to_time
 
+        elif from_time and to_time is None:
+            api.abort(400, 'Optional argument: "to" missing in query')
+
+        elif to_time and from_time is None:
+            api.abort(400, 'Optional argument: "from" missing in query')
+
         logger.info('hashdoc/{}: called'.format(product_id))
 
         product_hash_doc = mongo.db['HashData'].find(
@@ -113,12 +111,9 @@ class HashDocResource(Resource):
 
         if len(list_product_hashdoc):
             logger.debug('No. of Product Hash Documents found: {}'.format(
-                str(
-                    len(list_product_hashdoc))
-                )
-            )
+                    len(list_product_hashdoc)))
             return list_product_hashdoc
 
         else:
             logger.info('No Product Hash Documents found')
-            api.abort(404, 'No Values Exist for Product ID {}'.format(product_id))
+            return []  # return Empty List under HTTP 200
