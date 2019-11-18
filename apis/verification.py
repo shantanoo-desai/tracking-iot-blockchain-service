@@ -71,6 +71,8 @@ def check_data_integrity(incoming_hash):
 
         else:
             return {'checked': False, 'hash': generated_hash}
+    else:
+        return {'checked': False, 'hash': None}
 
 
 def check_in_blockchain(incoming_hash):
