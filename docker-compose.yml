@@ -3,7 +3,7 @@ version: "3.7"
 services:
 
   flask:
-    image: shantanoodesai/nimble-iot-blockchain-api:1.1
+    image: shantanoodesai/nimble-iot-blockchain-api:1.2
     environment:
       - APP_CONFIG=production.cfg
     volumes:
