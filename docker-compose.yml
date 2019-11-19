@@ -3,12 +3,11 @@ version: "3.7"
 services:
 
   flask:
-    image: nimble-iot-blockchain-api
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: shantanoodesai/nimble-iot-blockchain-api:1.1
     environment:
-      - APP_CONFIG=testing.cfg
+      - APP_CONFIG=production.cfg
+    volumes:
+      ./production.cfg:/iotblockchainApp/production.cfg
     restart: always
     ports:
       - "5000:5000"

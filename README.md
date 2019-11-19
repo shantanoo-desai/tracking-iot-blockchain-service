@@ -53,7 +53,7 @@ These __RESTful__ APIs communicate with:
 
 ## Documentation
 
-- Current Swagger Documentation available on http://localhost:5000/api/
+- Current Swagger Documentation available on http://localhost:5000/api/doc/
 
 ## Deployment
 
@@ -61,7 +61,9 @@ These __RESTful__ APIs communicate with:
 - The app is deployed with __uWSGI Server__
 - Change the settings for the __uWSGI Server__ in `app.ini`
 - Adapt the `APP_CONFIG` variable in the `docker-compose` file to `production.cfg` with all environment variables
-  necessary in it
+  necessary in it.
+- The `production.cfg` file __MUST__ be in the same directory as that of the `docker-compose` file. Else, adapt the
+  the compose file with the path to the configuration accordingly (see `volumes`).
 - build using:
 
         docker-compose up --build

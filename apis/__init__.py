@@ -9,8 +9,9 @@ from .verification import api as verification_ns
 
 api = Api(
     title='IoT-Blockchain API',
-    version='1.1',
-    description='IoT Data and Blockchain related Information for NIMBLE Platform Track&Trace'
+    version='1.2',
+    description='IoT Data and Blockchain related Information for NIMBLE Platform Track&Trace',
+    doc='/doc/'
 )
 
 api.add_namespace(sensordoc_ns)
