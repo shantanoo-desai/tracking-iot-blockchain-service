@@ -91,10 +91,12 @@ def check_in_blockchain(incoming_hash):
 
     if response_from_bc.status_code == 200:
         result_bc = response_from_bc.json()
-        print(result_bc['message'])
-        return {'exists': True}
+        logger.debug('BC response: ' + result_bc['result'])
+        return {'exists': result_bc['result']}
 
     else:
+        logger.info('BC Response: Not HTTP 200 Response')
+        logger.debug('HTTP Response: ' + str(response_from_bc.status_code))
         return {'exists': False}
 
 
