@@ -13,7 +13,7 @@ blueprint = Blueprint('api', __name__)
 api = Api(
     blueprint,
     title='IoT-Blockchain API',
-    version='1.3',
+    version='1.4',
     description='IoT Data and Blockchain related Information for NIMBLE Platform Track&Trace',
     doc='/doc/',
     contact='Shantanoo Desai',
