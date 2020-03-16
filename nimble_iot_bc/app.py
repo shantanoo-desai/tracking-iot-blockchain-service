@@ -48,11 +48,12 @@ def main():
 
 
 def request_context():
+    ''' Request the main App's context
+    '''
     return main_app.app_context()
 
 
 if __name__ == "__main__":
     # Always in Production Mode.
-    # Necessary for uWSGI Server's configuration file
     entrypoint = main()
     entrypoint.run(debug=False)
