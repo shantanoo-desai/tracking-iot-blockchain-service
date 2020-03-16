@@ -1,7 +1,7 @@
 import logging
 from flask_restplus import Namespace, Resource, fields, reqparse
 
-from databases.documentdb import mongo
+from nimble_iot_bc.databases.documentdb import mongo
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)

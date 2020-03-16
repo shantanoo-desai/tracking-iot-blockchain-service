@@ -1,11 +1,13 @@
 import logging
 from flask import Flask
 from flask_cors import CORS
-from apis import blueprint as api
-from databases import mongo, influx
+from nimble_iot_bc.apis import blueprint as api
+from nimble_iot_bc.databases import mongo, influx
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
+main_app = Flask(__name__)
 
 
 def configure_app(flask_app):
@@ -40,10 +42,13 @@ def main():
     '''Main function that returns the CORS-configured Flask App
     '''
     logger.info('Starting Server for IoT-Blockchain API')
-    app = Flask(__name__)
-    CORS(app)
-    initialize_app(app)
-    return app
+    CORS(main_app)
+    initialize_app(main_app)
+    return main_app
+
+
+def request_context():
+    return main_app.app_context()
 
 
 # Necessary for uWSGI Server's configuration file
