@@ -3,11 +3,11 @@ version: "3.7"
 services:
 
   flask:
-    image: shantanoodesai/nimble-iot-blockchain-api:1.2
+    image: shantanoodesai/nimble-iot-blockchain-api:1.5
     environment:
       - APP_CONFIG=production.cfg
     volumes:
-      ./production.cfg:/iotblockchainApp/production.cfg
+      ./production.cfg:/iotblockchainApp/nimble_iot_bc/production.cfg
     restart: always
     ports:
       - "5000:5000"
