@@ -13,7 +13,7 @@ These __RESTful__ APIs communicate with:
 
 ### Development
 
-- Written using `python3.6`
+- Written using `python3.x`
 
 - Enable a Virtual Environment
 
@@ -33,7 +33,12 @@ These __RESTful__ APIs communicate with:
 
         pip install -r requirements.txt
 
-- Set `APP_CONFIG` to the configuration file variables e.g. `testing.cfg` or `production.cfg`
+    or
+
+        python setup.py develop
+
+- Set `APP_CONFIG` to the configuration file variables e.g. `testing.cfg` or `production.cfg` in the 
+   `nimble_iot_bc` directory:
 
     Linux
 
@@ -43,13 +48,19 @@ These __RESTful__ APIs communicate with:
 
         $env:APP_CONFIG = "testing.cfg"
 
-- enable debugging in the `app.py`:
+- enable debugging in the `main.py`:
 
-        app.run(debug=True)
+        entrypoint.run(debug=True)
 
 - Run the app using
 
-        python app.py
+        python main.py
+
+### Development with Docker
+
+        docker build -t nimble-iot-blockchain-api .
+
+(see __Deployment__ section for setting up environment file)
 
 ## Documentation
 
@@ -57,16 +68,20 @@ These __RESTful__ APIs communicate with:
 
 ## Deployment
 
-- Disable debug mode in production using `debug=False` in `app.py`
+- Disable debug mode in production using `debug=False` in `main.py`
 - The app is deployed with __uWSGI Server__
 - Change the settings for the __uWSGI Server__ in `app.ini`
 - Adapt the `APP_CONFIG` variable in the `docker-compose` file to `production.cfg` with all environment variables
   necessary in it.
-- The `production.cfg` file __MUST__ be in the same directory as that of the `docker-compose` file. Else, adapt the
-  the compose file with the path to the configuration accordingly (see `volumes`).
+- The `production.cfg` file __MUST__ be in the `nimble_iot_bc` directory. Else, adapt the compose file with 
+  the path to the configuration accordingly (see `volumes`).
 - build using:
 
         docker-compose up --build
+
+### Docker
+
+        docker --name=iot-tnt-bc-microservice -e APP_CONFIG=production.cfg  -p 5000:5000 shantanoodesai/nimble-iot-blockchain-api:latest
 
 ## License
 __MIT License__
@@ -76,4 +91,4 @@ __MIT License__
 
 Shantanoo Desai(des@biba.uni-bremen.de)
 
-__University Bremen__ and __BIBA - Bremer Institut für Produktion und Logistik GmbH__, Bremen, Germany
+__Faculty of Production Engineering, University Bremen__. In collaboration with __BIBA - Bremer Institut für Produktion und Logistik GmbH__, Bremen, Germany
