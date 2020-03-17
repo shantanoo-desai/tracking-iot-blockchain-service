@@ -1,7 +1,8 @@
 import logging
+# from collections import OrderedDict
 from flask_restplus import Namespace, Resource, fields, reqparse
 
-from databases.sensordb import influx
+from nimble_iot_bc.databases.sensordb import influx
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -61,7 +62,7 @@ def create_sensor_doc(datapoints):
             }
         ]
     """
-    sensor_doc_to_send = []
+    # sensor_doc_to_send = []
     for point in datapoints:
         _sub_doc = {
             'bizLocation': point['bizLocation'],
@@ -75,9 +76,7 @@ def create_sensor_doc(datapoints):
                 'temp': point['temp']
             }
         }
-
-        sensor_doc_to_send.append(_sub_doc)
-    return sensor_doc_to_send
+        yield _sub_doc
 
 
 # API Routes
@@ -116,7 +115,7 @@ class SensorDocResource(Resource):
             if len(results):
                 logger.info('Creating Sensor Doc for Datapoints')
                 response = create_sensor_doc(results[0])
-                return response
+                return list(response)
 
             else:
                 logger.info('No Datapoints available for given InfluxDB Query')

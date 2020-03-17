@@ -13,6 +13,6 @@ ADD . /iotblockchainApp
 RUN pip install -r requirements.txt
 
 # Set configuration file as environment variable
-ENV FLASK_APP app.py
+ENV FLASK_APP main.py
 
 CMD ["uwsgi", "--ini", "app.ini"]
